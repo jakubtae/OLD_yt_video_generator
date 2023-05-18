@@ -3,7 +3,6 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const db = require("../models/db.js");
 const jwt = require("jsonwebtoken");
-
 const Stories = require("../models/schemas/stories.js");
 
 // * MAIN ROUTE THAT RETURNS LIST OF PERMISSIONS
@@ -27,7 +26,39 @@ router.post("/:uuid/:perm/new", authenticateToken, async (req, res) => {
     title: req.body.title,
     date: date,
   });
-  res.send("hello");
+  res.send("story created successfully");
+});
+
+router.get("/:uuid/:perm/:storyid", authenticateToken, async (req, res) => {
+  const story = await Stories.findOne({ _id: req.params.storyid });
+  if (story.published === true) return res.send("Story was published");
+  res.send(story);
+});
+
+router.post("/:uuid/:perm/:storyid/gpt", authenticateToken, async (req, res) => {
+  try{
+  const { Configuration, OpenAIApi } = require("openai");
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const openai = new OpenAIApi(configuration);
+  try {
+    const completion = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: "Hello world",
+    });
+    console.log(completion.data.choices[0].text);
+  } catch (error) {
+    if (error.response) {
+      console.log(error.response.status);
+      console.log(error.response.data);
+    } else {
+      console.log(error.message);
+    }
+  }
+}catch (e) {
+  res.send("Some Error here it is : " + e)
+}
 });
 
 function authenticateToken(req, res, next) {
