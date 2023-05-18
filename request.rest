@@ -1,0 +1,34 @@
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "uname": "jakub",
+    "password": "123"
+}
+###
+
+GET http://localhost:3000/6465fe724b087ad1e5ac61d8
+Content-Type: application/json
+
+{
+    "jwt" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDY1ZmU3MjRiMDg3YWQxZTVhYzYxZDgiLCJ1bmFtZSI6Impha3ViIiwicGFzc3dvcmQiOiIkMmEkMTIkbDhSQzkwUnJoU3cyS09QZW9VZ0w4T2NWZG83bmUvN2tpWjFBYkpjaEVPa3ZiZ3JOUlAwUVMiLCJwZXJtcyI6WyJzdG9yeUNoYW5uZWwiXSwiX192IjowLCJpYXQiOjE2ODQ0MDc2MDIsImV4cCI6MTY4NDQwODUwMn0.laiPw_MntU6PYb1T29t4_8Q5TNbs9pdsPpvsi8xXy9c"
+}
+
+
+###
+GET http://localhost:3000/6465fe724b087ad1e5ac61d8/storyChannel
+Content-Type: application/json
+
+{
+    "jwt" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDY1ZmU3MjRiMDg3YWQxZTVhYzYxZDgiLCJ1bmFtZSI6Impha3ViIiwicGFzc3dvcmQiOiIkMmEkMTIkbDhSQzkwUnJoU3cyS09QZW9VZ0w4T2NWZG83bmUvN2tpWjFBYkpjaEVPa3ZiZ3JOUlAwUVMiLCJwZXJtcyI6WyJzdG9yeUNoYW5uZWwiXSwiX192IjowLCJpYXQiOjE2ODQ0MDgyOTQsImV4cCI6MTY4NDQwOTE5NH0.byHEIXJr-S8woe44a73V_V9tDCPxTheZYHfI_GoJh0I"
+}
+
+###
+
+POST http://localhost:3000/6465fe724b087ad1e5ac61d8/storyChannel/new
+Content-Type: application/json
+
+{
+    "jwt" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDY1ZmU3MjRiMDg3YWQxZTVhYzYxZDgiLCJ1bmFtZSI6Impha3ViIiwicGFzc3dvcmQiOiIkMmEkMTIkbDhSQzkwUnJoU3cyS09QZW9VZ0w4T2NWZG83bmUvN2tpWjFBYkpjaEVPa3ZiZ3JOUlAwUVMiLCJwZXJtcyI6WyJzdG9yeUNoYW5uZWwiXSwiX192IjowLCJpYXQiOjE2ODQ0MDgyOTQsImV4cCI6MTY4NDQwOTE5NH0.byHEIXJr-S8woe44a73V_V9tDCPxTheZYHfI_GoJh0I",
+    "title" : "Cool Monks"
+}
