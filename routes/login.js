@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const Admins = require('../models/schemas/admins.js');
 
 router.get('/', async (req, res) => {
-        return res.send("login panel")
+    res.render("main/login.ejs")
 })
 
 router.post('/', async (req, res) => {
@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
                   maxAge: 300 * 1000,
                 });
                 //! DO A BACKUP OF COLLECTIONS AND SEND IT TO MY EMAIL
-                res.send("Admin page")
+                res.redirect('/'+ admin._id)
               } else {
                 //* if password is incorrect sends error
                 res.send("Check if you typed your name and password correctly");
@@ -47,7 +47,6 @@ router.post('/', async (req, res) => {
 })
 
 function generateAccessToken(admin) {
-    console.log(admin)
     return jwt.sign(admin.toJSON(), process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "900s",
     });

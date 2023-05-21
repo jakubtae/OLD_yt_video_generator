@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Video</title>
+</head>
+<body>
+    <form id="generator">
+        <input type="file" id="mainaudio" accept="audio/*" required>
+        <input type="file" id="secaudio" accept="audio/*" required>
+        <input type="file" id="bg" accept="image/*, video/*" required>
+        <input type="submit" value="Generate">
+    </form>
+    <script>
+        const form = document.getElementById('generator')
+
+        const sendFiles = async () => {
+            // Object 
+            const audioMain = document.getElementById('mainaudio').files
+            const audioSec = document.getElementById('secaudio').files
+            const bg = document.getElementById('bg').files
+            const myFiles = {
+                "audioMain" : audioMain,
+                "audioSec" : audioSec,
+                "bg" : bg,
+            }
+            const formData = new FormData()
+
+            Object.keys(myFiles).forEach(key => {
+                formData.append(myFiles.item(key).name, myFiles.item(key))
+            })
+
+            const response = await fetch('http://localhost:3000/<%=locals.url%>', {
+                method: 'POST',
+                body: formData
+            })
+
+            const json = await response.json()
+
+            // const h2 = document.querySelector('h2')
+            // h2.textContent = `Status: ${json?.status}`
+
+            // const h3 = document.querySelector('h3')
+            // h3.textContent = json?.message
+
+            console.log(json)
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            sendFiles()
+        })
+    </script>
+</body>
+</html>
