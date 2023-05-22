@@ -7,13 +7,13 @@
     <title>Generate Video</title>
 </head>
 <body>
-    <form id="generator">
+    <form method="POST" action="<%=locals.url%>" id="generator" enctype="multipart/form-data">
         <input type="file" id="mainaudio" accept="audio/*" required>
         <input type="file" id="secaudio" accept="audio/*" required>
         <input type="file" id="bg" accept="image/*, video/*" required>
         <input type="submit" value="Generate">
     </form>
-    <script>
+    <!-- <script>
         const form = document.getElementById('generator')
 
         const sendFiles = async () => {
@@ -29,10 +29,11 @@
             const formData = new FormData()
 
             Object.keys(myFiles).forEach(key => {
-                formData.append(myFiles.item(key).name, myFiles.item(key))
+                console.log(key.iteam)
+                // formData.append(myFiles.item(key).name, myFiles.item(key))
             })
 
-            const response = await fetch('http://localhost:3000/<%=locals.url%>', {
+            const response = await fetch('http://localhost:3000<%=locals.url%>', {
                 method: 'POST',
                 body: formData
             })
@@ -52,6 +53,6 @@
             e.preventDefault()
             sendFiles()
         })
-    </script>
+    </script> -->
 </body>
 </html>

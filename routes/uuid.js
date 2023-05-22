@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../models/db.js");
 const jwt = require("jsonwebtoken");
 const Stories = require("../models/schemas/stories.js");
-
+const multer = require("multer");
 
 
 // ! GPT 
@@ -100,6 +100,9 @@ router.post("/:uuid/:perm/:storyid/final", authenticateToken, async (req, res) =
 router.get("/:uuid/:perm/:storyid/generate", authenticateToken, async (req, res) => {
   res.render('main/generate.ejs', { url : req.originalUrl})
 })
+
+
+
 
 
 router.post("/:uuid/:perm/:storyid/generate", authenticateToken, async (req, res) => {
