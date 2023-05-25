@@ -137,12 +137,7 @@ router.get(
   }
 );
 
-// ! TAKE POSTED FILES AND SAVE THEM IN videos/:storyid/
-// ! AS mainAudio.aws , secAudio.mp3 , bg.mp4 / bg.png
-// ! CREATE A REMOTION TEMPLATE
-// ! SWAP VARIABLES WITHIN REMOTION TEMPLATE FOR THOSE OF POSTED
-// ! GENERATE VIDEO AND SAVE IT IN videos/:storyid/ as final.mp4
-// ! SEND SUCCES MESSAGE ALONG WITH FORM FOR SUBMITION FOR TRANSCRIPTION
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -151,7 +146,7 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    cb(null, "main" + path.extname(file.originalname));
+    cb(null, req.params.filename + path.extname(file.originalname));
   },
 });
 
@@ -161,17 +156,54 @@ router.post(
   "/:uuid/:perm/:storyid/prepare/:filename",
   authenticateToken,
   fileExists,
-  mainUpload.single("mainaudio"),
+  mainUpload.single("file"),
   async (req, res) => {
-    if (problem == true) return res.send("File already exists");
-    res.send("File uploaded I guess");
+    var filename = req.params.filename;
+    res.send({filename : true})
   }
 );
 
+router.post(
+  "/:uuid/:perm/:storyid/generate",
+  authenticateToken,
+  async (req, res) => {
+    if(!fs.existsSync("videos/"+req.params.storyid)) return res.send("There are no files for that project");
+    const RequiredFiles = [
+      "main",
+      "second",
+      "background"
+    ]
+    const gotFiles = JSON.stringify(fs.readdirSync("videos/"+req.params.storyid))
+    if(JSON.stringify(RequiredFiles) !== gotFiles) return res.send("Not enough files")
+    // ! CREATE A REMOTION TEMPLATE
+    // ! SWAP VARIABLES WITHIN REMOTION TEMPLATE FOR THOSE OF POSTED
+    // ! GENERATE VIDEO AND SAVE IT IN videos/:storyid/ as final.mp4
+    // ! SEND SUCCES MESSAGE ALONG WITH FORM FOR SUBMITION FOR TRANSCRIPTION
+    res.send("Generating Film I guess")
+  }
+)
+
 function fileExists(req, res, next) {
-  if (fs.existsSync("videos/" + req.params.storyid + "/main.mp3"))
-    return res.send("File already exists");
-}
+    if(req.params.filename == "main"){
+      if (fs.existsSync("videos/" + req.params.storyid + "/main.mp3")) return res.send("File already exists");
+      next();
+    }
+    if(req.params.filename == "second"){
+      if (fs.existsSync("videos/" + req.params.storyid + "/second.mp3")) return res.send("File already exists");
+      next();
+    }
+    if(req.params.filename == "background"){
+      if (fs.existsSync("videos/" + req.params.storyid + "/background.gif")) return res.send("File already exists");
+      if (fs.existsSync("videos/" + req.params.storyid + "/background.jpg")) return res.send("File already exists");
+      if (fs.existsSync("videos/" + req.params.storyid + "/background.jpeg")) return res.send("File already exists");
+      if (fs.existsSync("videos/" + req.params.storyid + "/background.png")) return res.send("File already exists");
+      if (fs.existsSync("videos/" + req.params.storyid + "/background.mp4")) return res.send("File already exists");
+      next();
+    }
+    else{
+      next();
+    }
+  }
 
 function authenticateToken(req, res, next) {
   const token = req.body.jwt || req.cookies.jwt;

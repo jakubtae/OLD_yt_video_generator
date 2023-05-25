@@ -8,8 +8,22 @@
 </head>
 <body>
     <form method="POST" action="<%=locals.url%>/prepare/main" id="generator" enctype="multipart/form-data">
-        <input type="file" name="mainaudio" accept="audio/*" required>
-        <input type="submit" value="Generate">
+        <label for="Main">Main</label>
+        <input type="file" name="file" accept="audio/*" required>
+        <input type="submit" value="Save File">
+    </form>
+    <form method="POST" action="<%=locals.url%>/prepare/second" id="generator" enctype="multipart/form-data">
+        <label for="Second">Second</label>
+        <input type="file" name="file" accept="audio/*" required>
+        <input type="submit" value="Save File">
+    </form>
+    <form method="POST" action="<%=locals.url%>/prepare/background" id="generator" enctype="multipart/form-data">
+        <label for="background">background</label>
+        <input type="file" name="file" accept="image/*, video/*" required>
+        <input type="submit" value="Save File">
+    </form>
+    <form action="<%=locals.url%>/generate" method="POST">
+    <input type="submit" value="Generate">
     </form>
     <!-- <script>
         const form = document.getElementById('generator')

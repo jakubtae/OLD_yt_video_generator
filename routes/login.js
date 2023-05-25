@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
 
 function generateAccessToken(admin) {
     return jwt.sign(admin.toJSON(), process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "900s",
+      expiresIn: "9000s",
     });
   }
   
