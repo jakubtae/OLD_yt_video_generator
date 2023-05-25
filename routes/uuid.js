@@ -4,9 +4,10 @@ const db = require("../models/db.js");
 const jwt = require("jsonwebtoken");
 const Stories = require("../models/schemas/stories.js");
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-
-// ! GPT 
+// ! GPT
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -42,12 +43,18 @@ router.get("/:uuid/:perm/:storyid", authenticateToken, async (req, res) => {
   res.send(story);
 });
 
-router.post("/:uuid/:perm/:storyid/gpt", authenticateToken, async (req, res) => {
+router.post(
+  "/:uuid/:perm/:storyid/gpt",
+  authenticateToken,
+  async (req, res) => {
     try {
       const story = await Stories.findOne({ _id: req.params.storyid });
       ///! WORKS TILL HERE. API JUST DONT DO WHAT IT WAS SUPPOSED EVEN THOUGHT THE PROMPT IS GOOD
       //! MAYBE BAD MODEL
-      const prompt = "Write an around 1000 words motivational story about "+story.title+". Follow this story structure :  In Act 1, the main characters and central conflict are introduced, setting the tone and direction of the story. Pinch 1, also known as the inciting incident, occurs, which initiates the conflict. Act 2 involves the characters confronting difficult and seemingly insurmountable challenges. Pinch 2 represents the culmination of conflicts from Act 2, often leading to a moment of despair for the protagonist. Act 3 is the final act where all the conflicts, main plot points, subplots, and challenges converge. The climax of the story occurs, followed by the resolution that brings everything to a conclusion. "
+      const prompt =
+        "Write an around 1000 words motivational story about " +
+        story.title +
+        ". Follow this story structure :  In Act 1, the main characters and central conflict are introduced, setting the tone and direction of the story. Pinch 1, also known as the inciting incident, occurs, which initiates the conflict. Act 2 involves the characters confronting difficult and seemingly insurmountable challenges. Pinch 2 represents the culmination of conflicts from Act 2, often leading to a moment of despair for the protagonist. Act 3 is the final act where all the conflicts, main plot points, subplots, and challenges converge. The climax of the story occurs, followed by the resolution that brings everything to a conclusion. ";
       const openai = new OpenAIApi(configuration);
       try {
         const completion = await openai.createCompletion({
@@ -60,10 +67,11 @@ router.post("/:uuid/:perm/:storyid/gpt", authenticateToken, async (req, res) => 
           presence_penalty: 0,
         });
         //! SAVE THIS TO DB
-        story.gpt = completion.data.choices[0].text
+        story.gpt = completion.data.choices[0].text;
         story.prompt = prompt;
         const saved = await story.save();
-        res.send({update: true});
+        if(!saved) return  res.send({ update: false });
+        res.send({ update: true });
       } catch (error) {
         if (error.response) {
           res.send(error.response.status + "\n" + error.response.data);
@@ -77,44 +85,93 @@ router.post("/:uuid/:perm/:storyid/gpt", authenticateToken, async (req, res) => 
   }
 );
 
-router.post("/:uuid/:perm/:storyid/paraphrased", authenticateToken, async (req, res) => {
-  try{
-    const story = await Stories.findOne({ _id: req.params.storyid });
-    story.paraphrased = req.body.paraphrased;
-    await story.save().then(() => {return res.send({status: true})}).catch((err) => {res.send({status: false})})
-  }catch(e){
-    res.send("Error: " + e.message);
+router.post(
+  "/:uuid/:perm/:storyid/paraphrased",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const story = await Stories.findOne({ _id: req.params.storyid });
+      story.paraphrased = req.body.paraphrased;
+      await story
+        .save()
+        .then(() => {
+          return res.send({ status: true });
+        })
+        .catch((err) => {
+          res.send({ status: false });
+        });
+    } catch (e) {
+      res.send("Error: " + e.message);
+    }
   }
-})
+);
 
-router.post("/:uuid/:perm/:storyid/final", authenticateToken, async (req, res) => {
-  try{
-    const story = await Stories.findOne({ _id: req.params.storyid });
-    story.final = req.body.final;
-    await story.save().then(() => {return res.send({status: true})}).catch((err) => {res.send({status: false})})
-  }catch(e){
-    res.send("Error: " + e.message);
+router.post(
+  "/:uuid/:perm/:storyid/final",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const story = await Stories.findOne({ _id: req.params.storyid });
+      story.final = req.body.final;
+      await story
+        .save()
+        .then(() => {
+          return res.send({ status: true });
+        })
+        .catch((err) => {
+          res.send({ status: false });
+        });
+    } catch (e) {
+      res.send("Error: " + e.message);
+    }
   }
-})
+);
 
-router.get("/:uuid/:perm/:storyid/generate", authenticateToken, async (req, res) => {
-  res.render('main/generate.ejs', { url : req.originalUrl})
-})
+router.get(
+  "/:uuid/:perm/:storyid/generate",
+  authenticateToken,
+  async (req, res) => {
+    res.render("main/generate.ejs", {
+      url: req.originalUrl.substring(0, req.originalUrl.length - 9),
+    });
+  }
+);
 
+// ! TAKE POSTED FILES AND SAVE THEM IN videos/:storyid/
+// ! AS mainAudio.aws , secAudio.mp3 , bg.mp4 / bg.png
+// ! CREATE A REMOTION TEMPLATE
+// ! SWAP VARIABLES WITHIN REMOTION TEMPLATE FOR THOSE OF POSTED
+// ! GENERATE VIDEO AND SAVE IT IN videos/:storyid/ as final.mp4
+// ! SEND SUCCES MESSAGE ALONG WITH FORM FOR SUBMITION FOR TRANSCRIPTION
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    var dir = "videos/" + req.params.storyid;
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, "main" + path.extname(file.originalname));
+  },
+});
 
+const mainUpload = multer({ storage: storage });
 
+router.post(
+  "/:uuid/:perm/:storyid/prepare/:filename",
+  authenticateToken,
+  fileExists,
+  mainUpload.single("mainaudio"),
+  async (req, res) => {
+    if (problem == true) return res.send("File already exists");
+    res.send("File uploaded I guess");
+  }
+);
 
-router.post("/:uuid/:perm/:storyid/generate", authenticateToken, async (req, res) => {
-  // ! TAKE POSTED FILES AND SAVE THEM IN videos/:storyid/
-  // ! AS mainAudio.aws , secAudio.mp3 , bg.mp4 / bg.png
-  // ! CREATE A REMOTION TEMPLATE
-  // ! SWAP VARIABLES WITHIN REMOTION TEMPLATE FOR THOSE OF POSTED 
-  // ! GENERATE VIDEO AND SAVE IT IN videos/:storyid/ as final.mp4
-  // ! SEND SUCCES MESSAGE ALONG WITH FORM FOR SUBMITION FOR TRANSCRIPTION
-})
-
-
+function fileExists(req, res, next) {
+  if (fs.existsSync("videos/" + req.params.storyid + "/main.mp3"))
+    return res.send("File already exists");
+}
 
 function authenticateToken(req, res, next) {
   const token = req.body.jwt || req.cookies.jwt;

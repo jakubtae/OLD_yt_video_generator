@@ -7,10 +7,8 @@
     <title>Generate Video</title>
 </head>
 <body>
-    <form method="POST" action="<%=locals.url%>" id="generator" enctype="multipart/form-data">
-        <input type="file" id="mainaudio" accept="audio/*" required>
-        <input type="file" id="secaudio" accept="audio/*" required>
-        <input type="file" id="bg" accept="image/*, video/*" required>
+    <form method="POST" action="<%=locals.url%>/prepare/main" id="generator" enctype="multipart/form-data">
+        <input type="file" name="mainaudio" accept="audio/*" required>
         <input type="submit" value="Generate">
     </form>
     <!-- <script>
